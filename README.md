@@ -17,3 +17,6 @@ Auto-Updates - Get notified when new versions are available
 Dark/Light Themes - Choose your preferred theme
 
 Library Updates - Update all VN metadata from VNDB with one click
+
+# Donate if you can
+Kofi: https://ko-fi.com/mjf_png
