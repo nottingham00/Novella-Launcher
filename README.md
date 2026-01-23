@@ -1,1 +1,17 @@
-# Novella-Launcher
+# A modern visual novel launcher and library manager for Windows. Organize, rate, and launch your visual novels from one beautiful application.
+
+📥 Download
+Download the latest version from the Releases page
+
+✨ Features
+VNDB Integration - Search and add VNs from the Visual Novel Database
+
+Rating System - Rate VNs with scores, status, and reviews
+
+Playtime Tracking - Automatically track your playtime
+
+Auto-Updates - Get notified when new versions are available
+
+Dark/Light Themes - Choose your preferred theme
+
+Library Updates - Update all VN metadata from VNDB with one click
