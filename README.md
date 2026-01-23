@@ -3,6 +3,8 @@
 📥 Download
 Download the latest version from the Releases page
 
+![image alt](https://github.com/nottingham00/Novella-Launcher/blob/main/img/Screenshot%201.png)
+
 ✨ Features
 VNDB Integration - Search and add VNs from the Visual Novel Database
 
