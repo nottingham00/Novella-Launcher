@@ -1,4 +1,4 @@
-# A modern visual novel launcher and library manager for Windows. Organize, rate, and launch your visual novels from one beautiful application.
+# A simple visual novel launcher and library manager for Windows. Organize, rate, and launch your visual novels from one beautiful application.
 
 📥 Download
 Download the latest version from the Releases page
