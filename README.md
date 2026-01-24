@@ -17,4 +17,5 @@ Dark/Light Themes - Choose your preferred theme
 
 Library Updates - Update all VN metadata from VNDB with one click
 
+# Donations are good one, so please if you can donate please! I'll keep the project alive ASAP
 [Donate @ Kofi](https://ko-fi.com/mjf_png)
