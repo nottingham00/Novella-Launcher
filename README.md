@@ -1,7 +1,6 @@
 # A simple visual novel launcher and library manager for Windows. Organize, rate, and launch your visual novels from one beautiful application.
 
-📥 Download
-# Go at the ![Github Pages](https://github.com/nottingham00/Novella-Launcher/releases/tag/Release) Releases page
+📥 Download [Link Text](https://github.com/nottingham00/Novella-Launcher/releases)
 
 ![image alt](https://github.com/nottingham00/Novella-Launcher/blob/main/img/Screenshot%201.png)
 
