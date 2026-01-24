@@ -1,6 +1,6 @@
 # A simple visual novel launcher and library manager for Windows. Organize, rate, and launch your visual novels from one beautiful application.
 
-📥 Download [Link Text](https://github.com/nottingham00/Novella-Launcher/releases)
+📥 Download @ [Releases](https://github.com/nottingham00/Novella-Launcher/releases)
 
 ![image alt](https://github.com/nottingham00/Novella-Launcher/blob/main/img/Screenshot%201.png)
 
@@ -17,5 +17,4 @@ Dark/Light Themes - Choose your preferred theme
 
 Library Updates - Update all VN metadata from VNDB with one click
 
-# Donate if you can
-Kofi: https://ko-fi.com/mjf_png
+[Donate @ Kofi](https://ko-fi.com/mjf_png)
