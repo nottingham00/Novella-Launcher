@@ -1,21 +1,54 @@
-# A simple visual novel launcher and library manager for Windows. Organize, rate, and launch your visual novels from one beautiful application.
+# Novella Launcher
 
-📥 Download @ [Releases](https://github.com/nottingham00/Novella-Launcher/releases)
+A desktop app for managing and launching your visual novel library, built with Electron.
 
-![image alt](https://github.com/nottingham00/Novella-Launcher/blob/main/img/Screenshot%201.png)
+## Features
 
-✨ Features
-VNDB Integration - Search and add VNs from the Visual Novel Database
+- **Library management** — add VNs with cover art, track status and playtime
+- **VNDB integration** — search and pull metadata (title, description, tags, ratings) via the VNDB API
+- **Launch games** — set and launch executables directly from the app
+- **Personal ratings & reviews** — score entries and write notes; optionally sync ratings back to VNDB
+- **Themes** — light, dark, and auto (follows system)
+- **Auto-update check** — notifies you when a new release is available on GitHub
 
-Rating System - Rate VNs with scores, status, and reviews
+## Stack
 
-Playtime Tracking - Automatically track your playtime
+| Layer | Tech |
+|---|---|
+| Shell | Electron |
+| Frontend | Vanilla JS / HTML / CSS |
+| API | [VNDB Kana API](https://api.vndb.org) via Axios |
+| Storage | Local JSON files (`userData`) |
+| Token security | Electron `safeStorage` (OS-level encryption) |
 
-Auto-Updates - Get notified when new versions are available
+## Getting Started
 
-Dark/Light Themes - Choose your preferred theme
+```bash
+npm install
+npm start
+```
 
-Library Updates - Update all VN metadata from VNDB with one click
+### Optional: VNDB Token
 
-# Donations are good one, so please if you can donate please! I'll keep the project alive ASAP
-[Donate @ Kofi](https://ko-fi.com/mjf_png)
+Go to **Settings → VNDB Token** and paste a token from [vndb.org/u/tokens](https://vndb.org/u/tokens) to enable syncing your ratings to your VNDB account.
+
+## Build
+
+```bash
+npm run build   # produces a distributable via electron-builder
+```
+
+## Data Location
+
+All data is stored in Electron's `userData` directory:
+
+| File | Contents |
+|---|---|
+| `config.json` | Settings (token, theme, preferences) |
+| `library.json` | Your VN library |
+| `user_ratings.json` | Personal scores and reviews |
+| `covers/` | Cached cover images |
+
+## License
+
+MIT
