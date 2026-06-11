@@ -8,174 +8,108 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0"></script>
 </head>
 <body>
 
-  <!-- ── Custom Titlebar ────────────────────────────────────────── -->
+  <!-- Custom Titlebar (compact) -->
   <div class="titlebar" id="titlebar">
     <div class="titlebar-drag-region"></div>
     <span class="titlebar-title">Novella Launcher</span>
     <div class="titlebar-controls">
       <button class="tb-btn tb-minimize" id="tb-minimize" title="Minimize">
-        <svg viewBox="0 0 10 1" width="10" height="1"><rect width="10" height="1" rx="0.5"/></svg>
+        <svg width="10" height="10" viewBox="0 0 10 10">
+          <line x1="2" y1="5" x2="8" y2="5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+        </svg>
       </button>
       <button class="tb-btn tb-maximize" id="tb-maximize" title="Maximize">
-        <!-- icon swaps between maximise / restore via JS -->
-        <svg class="icon-maximise" viewBox="0 0 10 10" width="10" height="10">
-          <rect x="0.5" y="0.5" width="9" height="9" rx="1" fill="none" stroke-width="1"/>
+        <svg class="icon-maximise" width="10" height="10" viewBox="0 0 10 10">
+          <rect x="1" y="1" width="8" height="8" rx="0.5" fill="none" stroke="currentColor" stroke-width="1.2"/>
         </svg>
-        <svg class="icon-restore" viewBox="0 0 10 10" width="10" height="10" style="display:none">
-          <rect x="2" y="0" width="8" height="8" rx="1" fill="none" stroke-width="1"/>
-          <rect x="0" y="2" width="8" height="8" rx="1" fill="none" stroke-width="1"/>
+        <svg class="icon-restore" width="10" height="10" viewBox="0 0 10 10" style="display:none">
+          <rect x="2" y="2" width="6" height="6" rx="0.5" fill="none" stroke="currentColor" stroke-width="1.2"/>
         </svg>
       </button>
       <button class="tb-btn tb-close" id="tb-close" title="Close">
-        <svg viewBox="0 0 10 10" width="10" height="10">
-          <line x1="0" y1="0" x2="10" y2="10" stroke-width="1.2" stroke-linecap="round"/>
-          <line x1="10" y1="0" x2="0" y2="10" stroke-width="1.2" stroke-linecap="round"/>
+        <svg width="10" height="10" viewBox="0 0 10 10">
+          <line x1="2" y1="2" x2="8" y2="8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+          <line x1="8" y1="2" x2="2" y2="8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
         </svg>
       </button>
     </div>
   </div>
 
   <div class="app-container">
-
     <!-- Sidebar -->
     <aside class="sidebar">
       <div class="sidebar-header">
-        <div class="app-logo">
-          <div class="logo-mark">N</div>
-          <div class="logo-text">
-            <span class="logo-title">Novella</span>
-            <span class="logo-sub">Launcher</span>
-          </div>
-        </div>
+        <div class="app-logo"><div class="logo-mark">N</div><div class="logo-text"><span class="logo-title">Novella</span><span class="logo-sub">Launcher</span></div></div>
       </div>
-
       <nav class="sidebar-nav">
-        <button class="nav-item active" data-tab="library">
-          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
-          <span>Library</span>
-        </button>
-        <button class="nav-item" data-tab="settings">
-          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
-          <span>Settings</span>
-        </button>
+        <button class="nav-item active" data-tab="library"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg><span>Library</span></button>
+        <button class="nav-item" data-tab="settings"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg><span>Settings</span></button>
       </nav>
-
-      <div class="sidebar-footer">
-        <span class="version-badge">v<span id="version-display">1.0.1</span></span>
-      </div>
+      <div class="sidebar-footer"><span class="version-badge">v<span id="version-display">1.0.1</span></span></div>
     </aside>
 
     <!-- Main content -->
     <main class="main-content">
-
       <!-- LIBRARY TAB -->
       <div id="library-tab" class="tab-content active">
         <div class="library-layout">
-
-          <!-- Left: controls + grid -->
           <div class="library-left">
             <div class="library-toolbar">
-              <div class="search-wrap">
-                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                <input type="text" id="filter-input" placeholder="Search library…" class="filter-input">
-              </div>
+              <div class="search-wrap"><svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" id="filter-input" placeholder="Search library…" class="filter-input"></div>
               <select id="sort-select" class="sort-select">
-                <option>Title (A-Z)</option>
-                <option>Title (Z-A)</option>
-                <option>My Rating (High-Low)</option>
-                <option>My Rating (Low-High)</option>
-                <option>VNDB Rating (High-Low)</option>
-                <option>VNDB Rating (Low-High)</option>
-                <option>Playtime (High-Low)</option>
-                <option>Playtime (Low-High)</option>
-                <option>Last Played (Recent)</option>
-                <option>Last Played (Oldest)</option>
-                <option>Status</option>
-                <option>Recently Added</option>
+                <option>Title (A-Z)</option><option>Title (Z-A)</option><option>My Rating (High-Low)</option><option>My Rating (Low-High)</option>
+                <option>VNDB Rating (High-Low)</option><option>VNDB Rating (Low-High)</option><option>Playtime (High-Low)</option><option>Playtime (Low-High)</option>
+                <option>Last Played (Recent)</option><option>Last Played (Oldest)</option><option>Status</option><option>Recently Added</option>
               </select>
-              <button id="update-library-btn" class="btn-ghost">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
-                Update
-              </button>
+              <button id="scan-games-btn" class="btn-primary" style="background:var(--bg-3);color:var(--text-1);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="14" height="14"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>Scan for Games</button>
+              <button id="update-library-btn" class="btn-ghost"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="15" height="15"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>Update</button>
+              <button id="batch-delete-btn" class="btn-danger" style="display:none;">Batch Delete</button>
             </div>
-
-            <div class="vndb-row">
-              <div class="search-wrap vndb-search-wrap">
-                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                <input type="text" id="vndb-search-input" placeholder="Search VNDB and add to library…">
-              </div>
-              <button id="vndb-search-btn" class="btn-primary">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                Add
-              </button>
+            <!-- Advanced filter chips -->
+            <div id="filter-chips" style="display:flex; gap:6px; padding:8px 16px; border-bottom:1px solid var(--border); flex-wrap:wrap;">
+              <button class="filter-chip" data-filter="playing">Playing</button><button class="filter-chip" data-filter="completed">Completed</button>
+              <button class="filter-chip" data-filter="rating-high">Rating ≥ 8</button><button class="filter-chip" data-filter="playtime>10">Playtime > 10h</button>
+              <button id="clear-filters" class="filter-chip">Clear filters</button>
             </div>
-
-            <div class="grid-container" id="library-grid">
-              <div class="empty-state" id="empty-state">
-                <div class="empty-icon">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
-                </div>
-                <p class="empty-title">Your library is empty</p>
-                <p class="empty-sub">Search VNDB above to add visual novels</p>
-              </div>
-            </div>
+            <div class="vndb-row"><div class="search-wrap vndb-search-wrap"><svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" id="vndb-search-input" placeholder="Search VNDB and add to library…"></div><button id="vndb-search-btn" class="btn-primary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add</button></div>
+            <div class="grid-container" id="library-grid"></div>
           </div>
-
-          <!-- Right: detail panel -->
           <div class="library-right">
             <div class="details-scroll">
-
-              <div class="detail-cover-wrap" id="detail-cover">
-                <div class="cover-placeholder">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" width="40" height="40"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
-                  <span>Select a visual novel</span>
-                </div>
-              </div>
-
+              <div class="detail-cover-wrap" id="detail-cover"></div>
               <div class="detail-body">
                 <h2 id="detail-title" class="detail-title">—</h2>
-
-                <div id="detail-user-rating" class="detail-rating-row">
-                  <span class="rating-label">Not rated</span>
-                </div>
-
+                <div id="detail-user-rating" class="detail-rating-row"></div>
                 <div id="detail-tags" class="detail-tags"></div>
-
                 <div id="detail-info" class="detail-meta-grid"></div>
-
-                <div id="detail-review-section" class="detail-section" style="display:none">
-                  <div class="section-label">My Review</div>
-                  <div id="detail-review-text" class="review-card"></div>
+                <!-- Custom Tags & Collections -->
+                <div id="custom-tags-section" class="detail-section">
+                  <div class="section-label">My Tags</div>
+                  <div id="custom-tags-list" class="detail-tags"></div>
+                  <div style="display:flex; gap:4px;"><input type="text" id="new-tag-input" placeholder="Add tag…" class="field-input" style="flex:1;"><button id="add-tag-btn" class="btn-ghost">+</button></div>
+                  <div class="section-label" style="margin-top:12px">Collections</div>
+                  <div id="collections-list" class="detail-tags"></div>
+                  <div style="display:flex; gap:4px;"><select id="collection-select" class="field-input" style="flex:1;"><option>Favorites</option><option>Backlog</option><option>Completed</option><option>Dropped</option></select><button id="add-to-collection-btn" class="btn-ghost">Add</button></div>
+                  <button id="manage-collections-btn" class="btn-ghost" style="margin-top:6px;">Manage Collections</button>
                 </div>
-
-                <div class="detail-section">
-                  <div class="section-label">Description</div>
-                  <div id="detail-desc" class="desc-card">Select a visual novel to see details.</div>
+                <div id="detail-review-section" class="detail-section" style="display:none"><div class="section-label">My Review</div><div id="detail-review-text" class="review-card"></div></div>
+                <div class="detail-section"><div class="section-label">Description</div><div id="detail-desc" class="desc-card">Select a visual novel to see details.</div></div>
+                <!-- Launch options -->
+                <div class="detail-section" id="launch-options-section" style="display:none;">
+                  <div class="section-label">Launch Options</div>
+                  <input type="text" id="launch-args" placeholder="Command line arguments" class="field-input">
+                  <input type="text" id="launch-cwd" placeholder="Working directory (leave empty for default)" class="field-input">
+                  <button id="save-launch-options" class="btn-ghost">Save Options</button>
                 </div>
               </div>
             </div>
-
             <div class="action-bar">
-              <button id="launch-btn" class="btn-launch">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                Launch
-              </button>
-              <div class="action-secondary">
-                <button id="set-exe-btn" class="btn-action">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                  Set EXE
-                </button>
-                <button id="rate-btn" class="btn-action">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                  Rate
-                </button>
-                <button id="remove-btn" class="btn-danger">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
-                </button>
-              </div>
+              <button id="launch-btn" class="btn-launch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="16" height="16"><polygon points="5 3 19 12 5 21 5 3"/></svg>Launch</button>
+              <div class="action-secondary"><button id="set-exe-btn" class="btn-action"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Set EXE</button><button id="rate-btn" class="btn-action"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="14" height="14"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Rate</button><button id="remove-btn" class="btn-danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="14" height="14"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg></button></div>
             </div>
           </div>
         </div>
@@ -184,152 +118,33 @@
       <!-- SETTINGS TAB -->
       <div id="settings-tab" class="tab-content">
         <div class="settings-container">
-          <div class="settings-header">
-            <h1 class="settings-title">Settings</h1>
+          <div class="settings-header"><h1 class="settings-title">Settings</h1></div>
+          <div class="settings-card"><div class="settings-card-label">VNDB API</div>
+            <div class="settings-group"><label class="field-label">API Token</label><p class="field-hint">Get your token from your VNDB profile → Applications. Requires <strong>listwrite</strong> permission to sync ratings.</p><input type="password" id="vndb-token" placeholder="vndb_token_…" class="field-input"></div>
+            <div class="settings-group"><label class="field-label toggle-row"><span>Sync ratings to VNDB<span class="field-hint" style="display:block;">Saves your score & review to your public VNDB list.</span></span><label class="toggle"><input type="checkbox" id="sync-vndb-checkbox"><span class="toggle-slider"></span></label></label></div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap"><button id="test-vndb-token-btn" class="btn-ghost">Test Token & Permissions</button><button id="bulk-sync-btn" class="btn-ghost"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="14" height="14"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>Sync All to VNDB</button><button id="import-vndb-list-btn" class="btn-ghost">Import from VNDB List</button></div>
+            <p id="bulk-sync-status" class="field-hint" style="display:none;"></p>
           </div>
-
-          <div class="settings-card">
-            <div class="settings-card-label">VNDB API</div>
-            <div class="settings-group">
-              <label class="field-label">API Token</label>
-              <p class="field-hint">Get your token from your VNDB profile → Applications. Requires <strong>listwrite</strong> permission to sync ratings.</p>
-              <input type="password" id="vndb-token" placeholder="vndb_token_…" class="field-input">
-            </div>
-            <div class="settings-group" style="margin-top:4px">
-              <label class="field-label toggle-row">
-                <span>
-                  Sync ratings to VNDB
-                  <span class="field-hint" style="display:block;margin-top:2px">
-                    Saves your score &amp; review to your public VNDB list when you rate a VN.
-                    Requires a token with <strong>listwrite</strong> permission.
-                  </span>
-                </span>
-                <label class="toggle">
-                  <input type="checkbox" id="sync-vndb-checkbox">
-                  <span class="toggle-slider"></span>
-                </label>
-              </label>
-            </div>
-            <div style="display:flex;gap:8px;margin-top:4px;flex-wrap:wrap">
-              <button id="test-vndb-token-btn" class="btn-ghost">Test Token &amp; Permissions</button>
-              <button id="bulk-sync-btn" class="btn-ghost">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
-                Sync All to VNDB
-              </button>
-            </div>
-            <p id="bulk-sync-status" class="field-hint" style="display:none;margin-top:6px"></p>
+          <div class="settings-card"><div class="settings-card-label">Game Scan Folders</div>
+            <div class="settings-group"><label class="field-label">Additional folders to scan for executables</label><p class="field-hint">One folder per line. The app will search these folders (and subfolders) for .exe/.app files.</p><textarea id="scan-folders-input" rows="3" placeholder="D:\Visual Novels&#10;E:\Games"></textarea></div>
+            <button id="rescan-folders-btn" class="btn-ghost">Refresh Scan Paths</button>
           </div>
-
-          <div class="settings-card">
-            <div class="settings-card-label">Appearance</div>
-            <div class="settings-group">
-              <label class="field-label">Theme</label>
-              <select id="theme-select" class="field-input">
-                <option value="auto">Auto (follow system)</option>
-                <option value="light">Light</option>
-                <option value="dark">Dark</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="settings-card">
-            <div class="settings-card-label">Updates</div>
-            <div class="settings-group">
-              <label class="field-label toggle-row">
-                <span>
-                  Auto-check for updates on startup
-                  <span class="field-hint" style="display:block;margin-top:2px">Checks GitHub releases on launch</span>
-                </span>
-                <label class="toggle">
-                  <input type="checkbox" id="auto-update-checkbox">
-                  <span class="toggle-slider"></span>
-                </label>
-              </label>
-            </div>
-            <button id="check-updates-settings" class="btn-ghost" style="margin-top:12px">Check for Updates Now</button>
-          </div>
-
-          <div class="settings-card">
-            <div class="settings-card-label">About</div>
-            <div class="settings-group">
-              <p class="field-hint">Novella Launcher v<span id="version-display-settings">1.0.1</span></p>
-              <p class="field-hint" style="margin-top:4px">A visual novel library manager and launcher.</p>
-            </div>
-          </div>
-
-          <button id="save-settings-btn" class="btn-primary" style="margin-top: 8px; width:100%; justify-content:center;">Save Settings</button>
+          <div class="settings-card"><div class="settings-card-label">Backup & Restore</div><div style="display:flex; gap:8px;"><button id="backup-btn" class="btn-ghost">Backup Library</button><button id="restore-btn" class="btn-ghost">Restore from Backup</button></div></div>
+          <div class="settings-card"><div class="settings-card-label">Appearance</div><div class="settings-group"><label class="field-label">Theme</label><select id="theme-select" class="field-input"><option value="auto">Auto (follow system)</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div>
+          <div class="settings-card"><div class="settings-card-label">Updates</div><div class="settings-group"><label class="field-label toggle-row"><span>Auto-check for updates on startup<span class="field-hint" style="display:block;">Checks GitHub releases on launch</span></span><label class="toggle"><input type="checkbox" id="auto-update-checkbox"><span class="toggle-slider"></span></label></label></div><button id="check-updates-settings" class="btn-ghost">Check for Updates Now</button></div>
+          <div class="settings-card"><div class="settings-card-label">About</div><p class="field-hint">Novella Launcher v<span id="version-display-settings">1.0.1</span></p><p class="field-hint">A visual novel library manager and launcher.</p></div>
+          <button id="save-settings-btn" class="btn-primary" style="width:100%; justify-content:center;">Save Settings</button>
         </div>
       </div>
-
     </main>
   </div>
 
-  <!-- Search results modal -->
-  <div id="search-results-modal" class="modal">
-    <div class="modal-backdrop"></div>
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3 class="modal-title">Add to Library</h3>
-        <button id="search-modal-cancel" class="modal-close">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </button>
-      </div>
-      <div id="search-results-list" class="search-results-list"></div>
-    </div>
-  </div>
-
-  <!-- Rating modal -->
-  <div id="rating-modal" class="modal">
-    <div class="modal-backdrop"></div>
-    <div class="modal-content modal-sm">
-      <div class="modal-header">
-        <h3 class="modal-title" id="rating-modal-title">Rate</h3>
-        <button id="rating-cancel" class="modal-close">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </button>
-      </div>
-      <div class="modal-body">
-        <div class="field-group">
-          <label class="field-label">Score <span class="score-display" id="score-display">0</span> / 10</label>
-          <input type="range" id="rating-score" step="0.5" min="0" max="10" value="0" class="score-slider">
-          <div class="score-ticks">
-            <span>0</span><span>2.5</span><span>5</span><span>7.5</span><span>10</span>
-          </div>
-        </div>
-        <div class="field-group">
-          <label class="field-label">Status</label>
-          <select id="rating-status" class="field-input">
-            <option>Not Started</option>
-            <option>Playing</option>
-            <option>Completed</option>
-            <option>On Hold</option>
-            <option>Dropped</option>
-          </select>
-        </div>
-        <div class="field-group">
-          <label class="field-label">Review</label>
-          <textarea id="rating-review" rows="4" placeholder="Write your thoughts…" class="field-textarea"></textarea>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button id="rating-save" class="btn-primary">Save Rating</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Update progress -->
-  <div id="update-progress-container" class="update-progress-container">
-    <div class="update-progress-inner">
-      <span id="update-progress-text" class="update-progress-text">Updating library…</span>
-      <div class="progress-track">
-        <div class="progress-bar" id="update-progress-bar"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Toast container -->
+  <!-- Modals -->
+  <div id="search-results-modal" class="modal"><div class="modal-backdrop"></div><div class="modal-content"><div class="modal-header"><h3>Add to Library</h3><button id="search-modal-cancel" class="modal-close"><svg viewBox="0 0 24 24" stroke="currentColor"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div><div id="search-results-list" class="search-results-list"></div></div></div>
+  <div id="rating-modal" class="modal"><div class="modal-backdrop"></div><div class="modal-content modal-sm"><div class="modal-header"><h3 id="rating-modal-title">Rate</h3><button id="rating-cancel" class="modal-close"><svg viewBox="0 0 24 24" stroke="currentColor"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div><div class="modal-body"><div class="field-group"><label>Score <span id="score-display">0</span> / 10</label><input type="range" id="rating-score" step="0.5" min="0" max="10" value="0" class="score-slider"><div class="score-ticks"><span>0</span><span>2.5</span><span>5</span><span>7.5</span><span>10</span></div></div><div class="field-group"><label>Status</label><select id="rating-status" class="field-input"><option>Not Started</option><option>Playing</option><option>Completed</option><option>On Hold</option><option>Dropped</option></select></div><div class="field-group"><label>Review</label><textarea id="rating-review" rows="4" class="field-textarea"></textarea></div></div><div class="modal-footer"><button id="rating-save" class="btn-primary">Save Rating</button></div></div></div>
+  <div id="found-games-modal" class="modal"><div class="modal-backdrop"></div><div class="modal-content" style="width:680px;"><div class="modal-header"><h3>Found Visual Novels</h3><button id="found-games-cancel" class="modal-close"><svg viewBox="0 0 24 24" stroke="currentColor"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div><div class="modal-body" style="padding:0;"><div id="found-games-list" style="max-height:450px; overflow:auto; padding:8px;"></div></div><div class="modal-footer" style="justify-content:space-between;"><button id="found-games-select-all" class="btn-ghost">Select All</button><button id="found-games-import" class="btn-primary">Import Selected</button></div></div></div>
+  <div id="update-progress-container" class="update-progress-container"><div class="update-progress-inner"><span id="update-progress-text"></span><div class="progress-track"><div class="progress-bar" id="update-progress-bar"></div></div></div></div>
   <div id="toast-container" class="toast-container"></div>
-
   <script src="renderer.js"></script>
 </body>
 </html>
