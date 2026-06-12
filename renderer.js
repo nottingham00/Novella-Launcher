@@ -1,15 +1,14 @@
 // ─── Global state ────────────────────────────────────────────────
 let library = { library: [] };
 let ratings  = { ratings: {} };
-let config   = { vndb_token: '', theme: 'auto', auto_check_updates: true, sync_to_vndb: false, scan_folders: [], collections: [] };
+let config   = { vndb_token: '', theme: 'auto', auto_check_updates: true, sync_to_vndb: false, collections: [] };
 let currentSelectedEntry = null;
 let currentTheme = 'dark';
-let foundGamesListData = [];
-let selectedCards = new Set(); // for batch operations
-let fuse = null; // for fuzzy search
+let selectedCards = new Set();
+let fuse = null;
 let activeFilters = { status: null, minRating: null, minPlaytime: null };
 
-// ─── DOM refs (all existing plus new ones) ───────────────────────
+// ─── DOM refs ────────────────────────────────────────────────────
 const libraryGrid           = document.getElementById('library-grid');
 const filterInput           = document.getElementById('filter-input');
 const sortSelect            = document.getElementById('sort-select');
@@ -39,9 +38,6 @@ const bulkSyncBtn           = document.getElementById('bulk-sync-btn');
 const bulkSyncStatus        = document.getElementById('bulk-sync-status');
 const saveSettingsBtn       = document.getElementById('save-settings-btn');
 const toastContainer        = document.getElementById('toast-container');
-const scanGamesBtn          = document.getElementById('scan-games-btn');
-const scanFoldersInput      = document.getElementById('scan-folders-input');
-const rescanFoldersBtn      = document.getElementById('rescan-folders-btn');
 const batchDeleteBtn        = document.getElementById('batch-delete-btn');
 const filterChips           = document.querySelectorAll('.filter-chip');
 const clearFiltersBtn       = document.getElementById('clear-filters');
@@ -74,12 +70,6 @@ const scoreDisplay          = document.getElementById('score-display');
 const updateProgressContainer = document.getElementById('update-progress-container');
 const updateProgressBar     = document.getElementById('update-progress-bar');
 const updateProgressText    = document.getElementById('update-progress-text');
-
-const foundGamesModal       = document.getElementById('found-games-modal');
-const foundGamesList        = document.getElementById('found-games-list');
-const foundGamesSelectAll   = document.getElementById('found-games-select-all');
-const foundGamesImport      = document.getElementById('found-games-import');
-const foundGamesCancel      = document.getElementById('found-games-cancel');
 
 // Titlebar
 const tbMinimize = document.getElementById('tb-minimize');
@@ -133,9 +123,6 @@ function cleanHtml(text) {
   if (!text) return '';
   return text.replace(/<br\s*\/?>/gi, '\n').replace(/<\/?[^>]+(>|$)/g, '').trim();
 }
-function escapeHtml(str) {
-  return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
-}
 function mergeRatings() {
   for (const entry of library.library) {
     entry.user_rating = ratings.ratings[entry.vndb_id] || null;
@@ -163,7 +150,6 @@ function applyAdvancedFilters(entries) {
   }
   return filtered;
 }
-// ─── Sort ────────────────────────────────────────────────────────
 function sortLibrary(entries, mode) {
   const copy = [...entries];
   const statusOrder = { Playing:0, Completed:1, 'On Hold':2, Dropped:3, 'Not Started':4 };
@@ -184,7 +170,7 @@ function sortLibrary(entries, mode) {
   }
 }
 
-// ─── Grid rendering with multi-select support ────────────────────
+// ─── Grid rendering ──────────────────────────────────────────────
 async function refreshGrid() {
   const filter = filterInput.value.trim();
   let filtered = library.library;
@@ -196,7 +182,7 @@ async function refreshGrid() {
 
   libraryGrid.innerHTML = '';
   if (filtered.length === 0) {
-    libraryGrid.innerHTML = `<div class="empty-state"><div class="empty-icon"><svg viewBox="0 0 24 24" width="40" height="40"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg></div><p class="empty-title">${library.library.length === 0 ? 'Your library is empty' : 'No results'}</p></div>`;
+    libraryGrid.innerHTML = `<div class="empty-state"><div class="empty-icon"><svg viewBox="0 0 24 24" width="40" height="40"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg></div><p class="empty-title">${library.library.length === 0 ? 'Your library is empty' : 'No results'}</p><p class="empty-sub">Search VNDB above to add visual novels</p></div>`;
     batchDeleteBtn.style.display = 'none';
     return;
   }
@@ -311,7 +297,6 @@ function updateDetailsPanel(entry) {
     ['Developer', entry.developers?.join(', ') || 'Unknown'],
     ['EXE', entry.exe_path || 'Not set'],
   ];
-  if (entry.steam_app_id) metas.splice(5, 0, ['Steam ID', entry.steam_app_id]);
   for (const [key, val] of metas) {
     const row = document.createElement('div');
     row.className = 'meta-row';
@@ -342,7 +327,7 @@ function resetDetailsPanel() {
   launchOptionsSection.style.display = 'none';
 }
 
-// ─── Custom Tags & Collections ───────────────────────────────────
+// ─── Custom Tags & Collections (unchanged) ───────────────────────
 function updateCustomTagsUI(entry) {
   const tags = entry.user_rating?.customTags || [];
   customTagsList.innerHTML = '';
@@ -352,11 +337,6 @@ function updateCustomTagsUI(entry) {
     pill.textContent = tag;
     const removeBtn = document.createElement('button');
     removeBtn.textContent = '×';
-    removeBtn.style.marginLeft = '6px';
-    removeBtn.style.background = 'none';
-    removeBtn.style.border = 'none';
-    removeBtn.style.color = 'var(--text-3)';
-    removeBtn.style.cursor = 'pointer';
     removeBtn.onclick = async (e) => {
       e.stopPropagation();
       const newTags = tags.filter(t => t !== tag);
@@ -408,7 +388,6 @@ function updateCollectionsUI(entry) {
     pill.appendChild(removeBtn);
     collectionsList.appendChild(pill);
   }
-  // populate collection select with user-defined collections from config
   collectionSelect.innerHTML = '';
   for (const col of config.collections) {
     const opt = document.createElement('option');
@@ -610,15 +589,6 @@ async function onSetExe() {
 async function onLaunch() {
   if (!currentSelectedEntry) return;
   const entry = currentSelectedEntry;
-  if (entry.steam_app_id) {
-    try {
-      await window.electronAPI.launchSteamGame(entry.steam_app_id);
-      await updatePlaytimeAndStatus(entry);
-      window.electronAPI.startPlaytimeTracking(entry.vndb_id);
-      showToast(`Launching ${entry.title} via Steam`, 'success');
-    } catch (err) { showToast(`Steam launch failed: ${err.message}`, 'error'); }
-    return;
-  }
   const exe = entry.exe_path;
   if (!exe) { showToast('Set an EXE path first', 'error'); return; }
   try {
@@ -699,8 +669,6 @@ async function saveSettings() {
   config.theme = themeSelect.value;
   config.auto_check_updates = autoUpdateCheckbox.checked;
   config.sync_to_vndb = syncVndbCheckbox.checked;
-  const foldersText = scanFoldersInput.value;
-  config.scan_folders = foldersText.split('\n').map(l => l.trim()).filter(l => l && !l.startsWith('#'));
   await window.electronAPI.saveConfig(config);
   await applyTheme(config.theme);
   showToast('Settings saved', 'success');
@@ -736,9 +704,13 @@ async function testVndbToken() {
   testVndbTokenBtn.classList.add('loading');
   try {
     const res = await window.electronAPI.vndbAuthInfo(token);
-    const hasWrite = (res.permissions || []).includes('listwrite');
-    if (hasWrite) showToast(`✓ Token valid (${res.username}). listwrite OK`, 'success');
-    else showToast(`Token valid but missing listwrite`, 'error');
+    if (res.valid) {
+      const hasWrite = (res.permissions || []).includes('listwrite');
+      if (hasWrite) showToast(`✓ Token valid (${res.username}). listwrite OK`, 'success');
+      else showToast(`Token valid but missing listwrite`, 'error');
+    } else {
+      showToast(`Token invalid: ${res.error}`, 'error');
+    }
   } catch (err) { showToast(`Token check failed: ${err.message}`, 'error');
   } finally { testVndbTokenBtn.disabled = false; testVndbTokenBtn.classList.remove('loading'); }
 }
@@ -812,111 +784,6 @@ async function restoreBackup() {
   }
 }
 
-// ─── Game Scanning (Steam + executables) ─────────────────────────
-async function onScanGames() {
-  scanGamesBtn.disabled = true;
-  scanGamesBtn.classList.add('loading');
-  try {
-    const result = await window.electronAPI.scanGames();
-    if (!result.success) { showToast(`Scan failed: ${result.error}`, 'error'); return; }
-    const all = result.games;
-    if (all.length === 0) { showToast('No new visual novels found', 'info'); return; }
-    const existingTitles = new Set(library.library.map(e => e.title.toLowerCase()));
-    const newGames = all.filter(g => !existingTitles.has(g.title.toLowerCase()));
-    if (newGames.length === 0) { showToast('All found games already in library', 'info'); return; }
-    foundGamesListData = newGames;
-    renderFoundGamesList(newGames);
-    foundGamesModal.style.display = 'flex';
-  } catch (err) { showToast(`Scan error: ${err.message}`, 'error');
-  } finally { scanGamesBtn.disabled = false; scanGamesBtn.classList.remove('loading'); }
-}
-function renderFoundGamesList(games) {
-  foundGamesList.innerHTML = '';
-  const steamGames = games.filter(g => g.source === 'steam');
-  const exeGames = games.filter(g => g.source === 'filesystem');
-  if (steamGames.length) addGroupHeader('Steam Games');
-  steamGames.forEach(game => addGameRow(game));
-  if (exeGames.length) addGroupHeader('Installed Executables');
-  exeGames.forEach(game => addGameRow(game));
-  function addGroupHeader(title) {
-    const header = document.createElement('div');
-    header.textContent = title;
-    header.style.cssText = 'font-size:12px;font-weight:600;text-transform:uppercase;color:var(--accent);margin:12px 8px 6px 8px;padding-bottom:4px;border-bottom:1px solid var(--border)';
-    foundGamesList.appendChild(header);
-  }
-  function addGameRow(game) {
-    const row = document.createElement('div');
-    row.className = 'search-result-item';
-    row.style.cursor = 'default';
-    const checkbox = document.createElement('input');
-    checkbox.type = 'checkbox';
-    checkbox.className = 'found-game-checkbox';
-    checkbox.dataset.gameIndex = foundGamesListData.indexOf(game);
-    checkbox.style.marginRight = '12px';
-    const infoDiv = document.createElement('div');
-    infoDiv.className = 'result-info';
-    const extra = game.source === 'steam' ? `Steam ID: ${game.steamAppId}` : `Path: ${game.execPath}`;
-    infoDiv.innerHTML = `<div class="result-title">${escapeHtml(game.title)}</div><div class="result-meta">${extra}</div>`;
-    row.appendChild(checkbox);
-    row.appendChild(infoDiv);
-    foundGamesList.appendChild(row);
-  }
-}
-async function onImportFoundGames() {
-  const checkboxes = document.querySelectorAll('#found-games-list .found-game-checkbox:checked');
-  if (checkboxes.length === 0) { showToast('No games selected', 'info'); return; }
-  foundGamesImport.disabled = true;
-  foundGamesImport.classList.add('loading');
-  let imported = 0;
-  for (const cb of checkboxes) {
-    const idx = parseInt(cb.dataset.gameIndex, 10);
-    const game = foundGamesListData[idx];
-    if (!game) continue;
-    try {
-      const token = config.vndb_token;
-      if (!token) { showToast('VNDB token missing', 'error'); continue; }
-      const searchResults = await window.electronAPI.vndbSearch(token, game.title);
-      if (searchResults.length === 0) { showToast(`No VNDB match for ${game.title}`, 'info'); continue; }
-      const vnData = await window.electronAPI.vndbDetails(token, searchResults[0].id);
-      if (vnData) {
-        if (game.source === 'steam') await addSteamVnToLibrary(vnData, game.steamAppId, game.installDir);
-        else await addExeVnToLibrary(vnData, game.execPath, game.installDir);
-        imported++;
-      }
-    } catch (err) { showToast(`Import failed for ${game.title}: ${err.message}`, 'error'); }
-  }
-  foundGamesModal.style.display = 'none';
-  foundGamesImport.disabled = false;
-  foundGamesImport.classList.remove('loading');
-  if (imported > 0) { rebuildFuse(); refreshGrid(); showToast(`Imported ${imported} game(s)`, 'success'); }
-}
-async function addSteamVnToLibrary(vnData, steamAppId, installDir) {
-  if (library.library.some(e => e.vndb_id === vnData.id)) return;
-  let coverPath = '';
-  if (vnData.image?.url) try { coverPath = await window.electronAPI.downloadCover(vnData.image.url, vnData.id); } catch(e) { console.warn(e); }
-  library.library.push({
-    vndb_id: vnData.id, title: vnData.title, alttitle: vnData.alttitle || '', released: vnData.released || 'Unknown',
-    rating: vnData.rating || null, votecount: vnData.votecount || 0, description: cleanHtml(vnData.description || ''),
-    exe_path: '', install_dir: installDir, cover_path: coverPath || '', added_at: Math.floor(Date.now() / 1000),
-    last_played: 0, playtime_minutes: 0, tags: (vnData.tags || []).slice(0,10).map(t => t.name),
-    developers: (vnData.developers || []).slice(0,5).map(d => d.name), steam_app_id: steamAppId
-  });
-  await window.electronAPI.saveLibrary(library);
-}
-async function addExeVnToLibrary(vnData, exePath, installDir) {
-  if (library.library.some(e => e.vndb_id === vnData.id)) return;
-  let coverPath = '';
-  if (vnData.image?.url) try { coverPath = await window.electronAPI.downloadCover(vnData.image.url, vnData.id); } catch(e) { console.warn(e); }
-  library.library.push({
-    vndb_id: vnData.id, title: vnData.title, alttitle: vnData.alttitle || '', released: vnData.released || 'Unknown',
-    rating: vnData.rating || null, votecount: vnData.votecount || 0, description: cleanHtml(vnData.description || ''),
-    exe_path: exePath, install_dir: installDir, cover_path: coverPath || '', added_at: Math.floor(Date.now() / 1000),
-    last_played: 0, playtime_minutes: 0, tags: (vnData.tags || []).slice(0,10).map(t => t.name),
-    developers: (vnData.developers || []).slice(0,5).map(d => d.name)
-  });
-  await window.electronAPI.saveLibrary(library);
-}
-
 // ─── Filter chips ────────────────────────────────────────────────
 function setupFilterChips() {
   filterChips.forEach(chip => {
@@ -962,7 +829,6 @@ async function init() {
   themeSelect.value = config.theme || 'auto';
   autoUpdateCheckbox.checked = config.auto_check_updates !== false;
   syncVndbCheckbox.checked = config.sync_to_vndb === true;
-  if (config.scan_folders) scanFoldersInput.value = config.scan_folders.join('\n');
   if (!config.collections) config.collections = ['Favorites', 'Backlog', 'Completed', 'Dropped'];
 
   const version = '1.0.1';
@@ -987,8 +853,6 @@ async function init() {
   checkUpdatesSettingsBtn.addEventListener('click', checkForUpdates);
   testVndbTokenBtn.addEventListener('click', testVndbToken);
   bulkSyncBtn.addEventListener('click', bulkSyncToVndb);
-  scanGamesBtn.addEventListener('click', onScanGames);
-  rescanFoldersBtn.addEventListener('click', () => { if (config.scan_folders) scanFoldersInput.value = config.scan_folders.join('\n'); });
   batchDeleteBtn.addEventListener('click', batchDelete);
   addTagBtn.addEventListener('click', addCustomTag);
   addToCollectionBtn.addEventListener('click', addToCollection);
@@ -997,10 +861,6 @@ async function init() {
   backupBtn.addEventListener('click', backupLibrary);
   restoreBtn.addEventListener('click', restoreBackup);
   importVndbListBtn.addEventListener('click', importVndbList);
-  foundGamesCancel.addEventListener('click', () => foundGamesModal.style.display = 'none');
-  foundGamesModal.querySelector('.modal-backdrop').onclick = () => foundGamesModal.style.display = 'none';
-  foundGamesSelectAll.addEventListener('click', () => { document.querySelectorAll('#found-games-list .found-game-checkbox').forEach(cb => cb.checked = true); });
-  foundGamesImport.addEventListener('click', onImportFoundGames);
 
   document.querySelectorAll('.nav-item').forEach(btn => btn.addEventListener('click', () => switchTab(btn.getAttribute('data-tab'))));
   window.electronAPI.onMenuCheckUpdates(() => checkForUpdates());

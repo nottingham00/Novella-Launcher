@@ -18,23 +18,14 @@
     <span class="titlebar-title">Novella Launcher</span>
     <div class="titlebar-controls">
       <button class="tb-btn tb-minimize" id="tb-minimize" title="Minimize">
-        <svg width="10" height="10" viewBox="0 0 10 10">
-          <line x1="2" y1="5" x2="8" y2="5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
-        </svg>
+        <svg width="10" height="10" viewBox="0 0 10 10"><line x1="2" y1="5" x2="8" y2="5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
       </button>
       <button class="tb-btn tb-maximize" id="tb-maximize" title="Maximize">
-        <svg class="icon-maximise" width="10" height="10" viewBox="0 0 10 10">
-          <rect x="1" y="1" width="8" height="8" rx="0.5" fill="none" stroke="currentColor" stroke-width="1.2"/>
-        </svg>
-        <svg class="icon-restore" width="10" height="10" viewBox="0 0 10 10" style="display:none">
-          <rect x="2" y="2" width="6" height="6" rx="0.5" fill="none" stroke="currentColor" stroke-width="1.2"/>
-        </svg>
+        <svg class="icon-maximise" width="10" height="10" viewBox="0 0 10 10"><rect x="1" y="1" width="8" height="8" rx="0.5" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>
+        <svg class="icon-restore" width="10" height="10" viewBox="0 0 10 10" style="display:none"><rect x="2" y="2" width="6" height="6" rx="0.5" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>
       </button>
       <button class="tb-btn tb-close" id="tb-close" title="Close">
-        <svg width="10" height="10" viewBox="0 0 10 10">
-          <line x1="2" y1="2" x2="8" y2="8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
-          <line x1="8" y1="2" x2="2" y2="8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
-        </svg>
+        <svg width="10" height="10" viewBox="0 0 10 10"><line x1="2" y1="2" x2="8" y2="8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><line x1="8" y1="2" x2="2" y2="8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
       </button>
     </div>
   </div>
@@ -65,7 +56,6 @@
                 <option>VNDB Rating (High-Low)</option><option>VNDB Rating (Low-High)</option><option>Playtime (High-Low)</option><option>Playtime (Low-High)</option>
                 <option>Last Played (Recent)</option><option>Last Played (Oldest)</option><option>Status</option><option>Recently Added</option>
               </select>
-              <button id="scan-games-btn" class="btn-primary" style="background:var(--bg-3);color:var(--text-1);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="14" height="14"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>Scan for Games</button>
               <button id="update-library-btn" class="btn-ghost"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="15" height="15"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>Update</button>
               <button id="batch-delete-btn" class="btn-danger" style="display:none;">Batch Delete</button>
             </div>
@@ -125,10 +115,6 @@
             <div style="display:flex;gap:8px;flex-wrap:wrap"><button id="test-vndb-token-btn" class="btn-ghost">Test Token & Permissions</button><button id="bulk-sync-btn" class="btn-ghost"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="14" height="14"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>Sync All to VNDB</button><button id="import-vndb-list-btn" class="btn-ghost">Import from VNDB List</button></div>
             <p id="bulk-sync-status" class="field-hint" style="display:none;"></p>
           </div>
-          <div class="settings-card"><div class="settings-card-label">Game Scan Folders</div>
-            <div class="settings-group"><label class="field-label">Additional folders to scan for executables</label><p class="field-hint">One folder per line. The app will search these folders (and subfolders) for .exe/.app files.</p><textarea id="scan-folders-input" rows="3" placeholder="D:\Visual Novels&#10;E:\Games"></textarea></div>
-            <button id="rescan-folders-btn" class="btn-ghost">Refresh Scan Paths</button>
-          </div>
           <div class="settings-card"><div class="settings-card-label">Backup & Restore</div><div style="display:flex; gap:8px;"><button id="backup-btn" class="btn-ghost">Backup Library</button><button id="restore-btn" class="btn-ghost">Restore from Backup</button></div></div>
           <div class="settings-card"><div class="settings-card-label">Appearance</div><div class="settings-group"><label class="field-label">Theme</label><select id="theme-select" class="field-input"><option value="auto">Auto (follow system)</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div>
           <div class="settings-card"><div class="settings-card-label">Updates</div><div class="settings-group"><label class="field-label toggle-row"><span>Auto-check for updates on startup<span class="field-hint" style="display:block;">Checks GitHub releases on launch</span></span><label class="toggle"><input type="checkbox" id="auto-update-checkbox"><span class="toggle-slider"></span></label></label></div><button id="check-updates-settings" class="btn-ghost">Check for Updates Now</button></div>
@@ -139,10 +125,11 @@
     </main>
   </div>
 
-  <!-- Modals -->
+  <!-- Modals (search results, rating) -->
   <div id="search-results-modal" class="modal"><div class="modal-backdrop"></div><div class="modal-content"><div class="modal-header"><h3>Add to Library</h3><button id="search-modal-cancel" class="modal-close"><svg viewBox="0 0 24 24" stroke="currentColor"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div><div id="search-results-list" class="search-results-list"></div></div></div>
   <div id="rating-modal" class="modal"><div class="modal-backdrop"></div><div class="modal-content modal-sm"><div class="modal-header"><h3 id="rating-modal-title">Rate</h3><button id="rating-cancel" class="modal-close"><svg viewBox="0 0 24 24" stroke="currentColor"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div><div class="modal-body"><div class="field-group"><label>Score <span id="score-display">0</span> / 10</label><input type="range" id="rating-score" step="0.5" min="0" max="10" value="0" class="score-slider"><div class="score-ticks"><span>0</span><span>2.5</span><span>5</span><span>7.5</span><span>10</span></div></div><div class="field-group"><label>Status</label><select id="rating-status" class="field-input"><option>Not Started</option><option>Playing</option><option>Completed</option><option>On Hold</option><option>Dropped</option></select></div><div class="field-group"><label>Review</label><textarea id="rating-review" rows="4" class="field-textarea"></textarea></div></div><div class="modal-footer"><button id="rating-save" class="btn-primary">Save Rating</button></div></div></div>
-  <div id="found-games-modal" class="modal"><div class="modal-backdrop"></div><div class="modal-content" style="width:680px;"><div class="modal-header"><h3>Found Visual Novels</h3><button id="found-games-cancel" class="modal-close"><svg viewBox="0 0 24 24" stroke="currentColor"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div><div class="modal-body" style="padding:0;"><div id="found-games-list" style="max-height:450px; overflow:auto; padding:8px;"></div></div><div class="modal-footer" style="justify-content:space-between;"><button id="found-games-select-all" class="btn-ghost">Select All</button><button id="found-games-import" class="btn-primary">Import Selected</button></div></div></div>
+
+  <!-- Update progress -->
   <div id="update-progress-container" class="update-progress-container"><div class="update-progress-inner"><span id="update-progress-text"></span><div class="progress-track"><div class="progress-bar" id="update-progress-bar"></div></div></div></div>
   <div id="toast-container" class="toast-container"></div>
   <script src="renderer.js"></script>

@@ -5,7 +5,7 @@ const {
 const path = require('path');
 const fs = require('fs').promises;
 const fsSync = require('fs');
-const { execFile, exec } = require('child_process');
+const { execFile } = require('child_process');
 const axios = require('axios');
 const os = require('os');
 
@@ -25,14 +25,14 @@ const MAX_COVER_BYTES = 10 * 1024 * 1024;
 const ALLOWED_COVER_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 
 let mainWindow;
-let activeGameProcesses = new Map(); // playtime tracking
+let activeGameProcesses = new Map();
 
 // Discord Rich Presence (optional)
 let discordRpc = null;
 function initDiscord() {
   try {
     const DiscordRPC = require('discord-rpc');
-    const clientId = 'YOUR_DISCORD_APP_ID'; // Replace with your app ID
+    const clientId = 'YOUR_DISCORD_APP_ID';
     DiscordRPC.register(clientId);
     discordRpc = new DiscordRPC.Client({ transport: 'ipc' });
     discordRpc.on('ready', () => {
@@ -68,7 +68,6 @@ function clearDiscord() {
   }
 }
 
-// Semver
 function isNewerVersion(remote, local) {
   const parse = v => v.replace(/^v/, '').split('.').map(Number);
   const [rMaj, rMin, rPat] = parse(remote);
@@ -81,17 +80,21 @@ function isNewerVersion(remote, local) {
 // Encryption
 function encryptToken(plaintext) {
   if (!plaintext || !safeStorage.isEncryptionAvailable()) return plaintext;
-  return safeStorage.encryptString(plaintext).toString('base64');
+  try {
+    return safeStorage.encryptString(plaintext).toString('base64');
+  } catch { return plaintext; }
 }
 function decryptToken(stored) {
   if (!stored || !safeStorage.isEncryptionAvailable()) return stored;
-  try { return safeStorage.decryptString(Buffer.from(stored, 'base64')); } catch { return stored; }
+  try {
+    return safeStorage.decryptString(Buffer.from(stored, 'base64'));
+  } catch { return stored; }
 }
 
 async function ensureFiles() {
   await fs.mkdir(COVERS_DIR, { recursive: true });
   const defaults = [
-    [CONFIG_FILE, { vndb_token: '', theme: 'auto', auto_check_updates: true, sync_to_vndb: false, scan_folders: [], collections: [] }],
+    [CONFIG_FILE, { vndb_token: '', theme: 'auto', auto_check_updates: true, sync_to_vndb: false, collections: [] }],
     [LIBRARY_FILE, { library: [] }],
     [RATINGS_FILE, { ratings: {} }],
   ];
@@ -102,14 +105,29 @@ async function ensureFiles() {
 
 // VNDB client
 class VNDBClient {
-  constructor(token) { this.token = token; }
+  constructor(token) { this.token = token ? token.trim() : ''; }
   async searchVN(query, limit = 10) {
-    const res = await axios.post('https://api.vndb.org/kana/vn', { filters: ['search', '=', query], fields: 'id,title,alttitle,image.url,description,rating,votecount,released', results: limit }, { headers: this._headers(), timeout: 15000 });
+    const res = await axios.post('https://api.vndb.org/kana/vn', {
+      filters: ['search', '=', query],
+      fields: 'id,title,alttitle,image.url,description,rating,votecount,released',
+      results: limit
+    }, { headers: this._headers(), timeout: 15000 });
     return res.data.results || [];
   }
   async getVN(vnId) {
-    const res = await axios.post('https://api.vndb.org/kana/vn', { filters: ['id', '=', vnId], fields: 'id,title,alttitle,image.url,description,rating,votecount,released,tags.name,developers.name' }, { headers: this._headers(), timeout: 15000 });
+    const res = await axios.post('https://api.vndb.org/kana/vn', {
+      filters: ['id', '=', vnId],
+      fields: 'id,title,alttitle,image.url,description,rating,votecount,released,tags.name,developers.name'
+    }, { headers: this._headers(), timeout: 15000 });
     return (res.data.results || [])[0] || null;
+  }
+  async testToken() {
+    try {
+      const res = await axios.get('https://api.vndb.org/kana/authinfo', { headers: this._headers(), timeout: 8000 });
+      return { valid: true, username: res.data.username, permissions: res.data.permissions };
+    } catch (err) {
+      return { valid: false, error: err.response?.status === 401 ? 'Invalid or expired token' : err.message };
+    }
   }
   _headers() { return { 'Content-Type': 'application/json', 'Authorization': `Token ${this.token}` }; }
 }
@@ -137,138 +155,15 @@ async function downloadCover(url, vnId) {
   return new Promise((resolve, reject) => { writer.on('finish', () => resolve(filepath)); writer.on('error', reject); });
 }
 
-// Steam scanning
-async function readAcfFile(filePath) {
-  const content = await fs.readFile(filePath, 'utf8');
-  const nameMatch = content.match(/"name"\s+"([^"]+)"/);
-  const installdirMatch = content.match(/"installdir"\s+"([^"]+)"/);
-  const stateMatch = content.match(/"StateFlags"\s+"(\d+)"/);
-  if (!nameMatch || !installdirMatch) return null;
-  const state = stateMatch ? parseInt(stateMatch[1], 10) : 0;
-  if ((state & 4) === 0) return null;
-  return { title: nameMatch[1], installdir: installdirMatch[1] };
-}
-async function getSteamAppsFolders() {
-  const possibleSteamPaths = [];
-  if (process.platform === 'win32') {
-    possibleSteamPaths.push('C:/Program Files (x86)/Steam');
-    possibleSteamPaths.push(`${process.env.HOMEDRIVE || 'C:'}/Steam`);
-  } else if (process.platform === 'darwin') {
-    possibleSteamPaths.push(path.join(os.homedir(), 'Library/Application Support/Steam'));
-  } else {
-    possibleSteamPaths.push(path.join(os.homedir(), '.steam/steam'));
-  }
-  const steamAppsFolders = [];
-  for (const base of possibleSteamPaths) {
-    const libraryFile = path.join(base, 'steamapps/libraryfolders.vdf');
-    try {
-      await fs.access(libraryFile);
-      steamAppsFolders.push(path.join(base, 'steamapps'));
-      const libContent = await fs.readFile(libraryFile, 'utf8');
-      const pathMatches = libContent.matchAll(/"path"\s+"([^"]+)"/g);
-      for (const match of pathMatches) {
-        let libPath = match[1];
-        if (process.platform === 'win32') libPath = libPath.replace(/\\\\/g, '\\');
-        steamAppsFolders.push(path.join(libPath, 'steamapps'));
-      }
-    } catch {}
-  }
-  return [...new Set(steamAppsFolders)];
-}
-async function scanSteamGames() {
-  const steamAppsFolders = await getSteamAppsFolders();
-  const games = [];
-  for (const appsDir of steamAppsFolders) {
-    try {
-      const files = await fs.readdir(appsDir);
-      const acfFiles = files.filter(f => f.startsWith('appmanifest_') && f.endsWith('.acf'));
-      for (const acf of acfFiles) {
-        const acfPath = path.join(appsDir, acf);
-        const gameInfo = await readAcfFile(acfPath);
-        if (!gameInfo) continue;
-        const steamAppId = acf.match(/appmanifest_(\d+)\.acf/)[1];
-        const installDir = path.join(appsDir, 'common', gameInfo.installdir);
-        games.push({ source: 'steam', title: gameInfo.title, steamAppId, installDir });
-      }
-    } catch (err) { console.warn(err); }
-  }
-  return games;
-}
-
-// Executable scanning
-const VN_KEYWORDS = ['visual novel', 'vn', 'renpy', 'kirikiri', 'tyrano', 'nscripter', 'rpg maker'];
-function isLikelyVisualNovel(name) {
-  const lower = name.toLowerCase();
-  return VN_KEYWORDS.some(kw => lower.includes(kw)) ||
-    ['renpy.exe', 'tyranoscript.exe', 'nscripter.exe', 'game.exe', 'start.exe'].includes(lower);
-}
-async function scanExecutables(folders) {
-  const results = [];
-  const scannedPaths = new Set();
-  for (const folder of folders) {
-    if (!folder || typeof folder !== 'string') continue;
-    try { await fs.access(folder); } catch { continue; }
-    async function scanDir(dir) {
-      let entries;
-      try { entries = await fs.readdir(dir, { withFileTypes: true }); } catch { return; }
-      for (const entry of entries) {
-        const fullPath = path.join(dir, entry.name);
-        if (entry.isDirectory()) await scanDir(fullPath);
-        else if (entry.isFile() && (fullPath.endsWith('.exe') || fullPath.endsWith('.app'))) {
-          const fileName = entry.name.toLowerCase();
-          if (fileName.includes('uninstall') || fileName.includes('setup') || fileName.includes('installer')) continue;
-          const parentDir = path.basename(path.dirname(fullPath));
-          const candidateName = parentDir !== '.' ? parentDir : path.basename(fullPath, path.extname(fullPath));
-          if (isLikelyVisualNovel(candidateName) || isLikelyVisualNovel(fileName)) {
-            if (!scannedPaths.has(fullPath)) {
-              scannedPaths.add(fullPath);
-              results.push({
-                source: 'filesystem',
-                title: candidateName.replace(/[_-]/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
-                execPath: fullPath,
-                installDir: path.dirname(fullPath),
-              });
-            }
-          }
-        }
-      }
-    }
-    await scanDir(folder);
-  }
-  return results;
-}
-async function scanCombinedGames() {
-  const cfg = JSON.parse(await fs.readFile(CONFIG_FILE, 'utf8'));
-  const scanFolders = cfg.scan_folders || [];
-  const defaultScanPaths = [];
-  if (process.platform === 'win32') {
-    defaultScanPaths.push('C:/Program Files', 'C:/Program Files (x86)', path.join(app.getPath('documents'), 'Visual Novels'), path.join(app.getPath('home'), 'Games'));
-  } else if (process.platform === 'darwin') {
-    defaultScanPaths.push('/Applications', path.join(app.getPath('home'), 'Applications'));
-  } else {
-    defaultScanPaths.push('/usr/local/games', path.join(app.getPath('home'), 'Games'));
-  }
-  const allScanPaths = [...new Set([...defaultScanPaths, ...scanFolders])];
-  const [steamGames, exeGames] = await Promise.all([scanSteamGames(), scanExecutables(allScanPaths)]);
-  const allGames = [...steamGames, ...exeGames];
-  const unique = [];
-  const seen = new Set();
-  for (const game of allGames) {
-    const key = game.title.toLowerCase();
-    if (!seen.has(key)) { seen.add(key); unique.push(game); }
-  }
-  return unique;
-}
-
 // IPC handlers
 async function setupIpcHandlers() {
   ipcMain.handle('load-config', async () => {
     const cfg = JSON.parse(await fs.readFile(CONFIG_FILE, 'utf8'));
-    cfg.vndb_token = decryptToken(cfg.vndb_token);
+    cfg.vndb_token = decryptToken(cfg.vndb_token || '');
     return cfg;
   });
   ipcMain.handle('save-config', async (event, cfg) => {
-    const toWrite = { ...cfg, vndb_token: encryptToken(cfg.vndb_token) };
+    const toWrite = { ...cfg, vndb_token: encryptToken(cfg.vndb_token || '') };
     await fs.writeFile(CONFIG_FILE, JSON.stringify(toWrite, null, 2));
     return true;
   });
@@ -285,16 +180,11 @@ async function setupIpcHandlers() {
   });
   ipcMain.handle('launch-game', async (_, exePath, cwd, args = []) => {
     return new Promise((resolve, reject) => {
-      const proc = execFile(exePath, args, { cwd: cwd || path.dirname(exePath), detached: true }, err => { if (err) reject(err); else resolve(true); });
-      return proc;
+      execFile(exePath, args, { cwd: cwd || path.dirname(exePath), detached: true }, err => { if (err) reject(err); else resolve(true); });
     });
-  });
-  ipcMain.handle('launch-steam-game', async (_, steamAppId) => {
-    return new Promise((resolve, reject) => { exec(`steam://rungameid/${steamAppId}`, err => { if (err) reject(err); else resolve(true); }); });
   });
   ipcMain.handle('start-playtime-tracking', async (_, vnId) => {
     if (activeGameProcesses.has(vnId)) return;
-    const startTime = Date.now();
     const interval = setInterval(async () => {
       try {
         const lib = JSON.parse(await fs.readFile(LIBRARY_FILE, 'utf8'));
@@ -306,7 +196,7 @@ async function setupIpcHandlers() {
         }
       } catch (e) {}
     }, 60000);
-    activeGameProcesses.set(vnId, { startTime, interval });
+    activeGameProcesses.set(vnId, { interval });
   });
   ipcMain.handle('stop-playtime-tracking', async (_, vnId) => {
     const track = activeGameProcesses.get(vnId);
@@ -326,31 +216,23 @@ async function setupIpcHandlers() {
   ipcMain.handle('open-external', (_, url) => shell.openExternal(url));
   ipcMain.handle('get-system-theme', () => nativeTheme.shouldUseDarkColors ? 'dark' : 'light');
   ipcMain.handle('show-notification', (_, { title, body }) => new Notification({ title, body }).show());
-  ipcMain.handle('vndb-authinfo', async (_, token) => {
-    const res = await axios.get('https://api.vndb.org/kana/authinfo', { headers: { 'Authorization': `Token ${token}` }, timeout: 8000 });
-    return res.data;
-  });
+  ipcMain.handle('vndb-authinfo', async (_, token) => new VNDBClient(token).testToken());
   ipcMain.handle('vndb-ulist-set', async (_, { token, vnId, vote, notes }) => {
     const vndbVote = (vote != null && vote > 0) ? Math.round(vote * 10) : null;
     const body = {};
     if (vndbVote !== null) body.vote = vndbVote;
     if (notes && notes.trim()) body.notes = notes.trim();
-    const res = await axios.post(`https://api.vndb.org/kana/ulist/${vnId}`, body, { headers: { 'Authorization': `Token ${token}`, 'Content-Type': 'application/json' }, timeout: 10000 });
-    return res.status;
+    await axios.post(`https://api.vndb.org/kana/ulist/${vnId}`, body, { headers: { 'Authorization': `Token ${token}`, 'Content-Type': 'application/json' }, timeout: 10000 });
+    return true;
   });
   ipcMain.handle('vndb-ulist-delete', async (_, { token, vnId }) => {
-    const res = await axios.delete(`https://api.vndb.org/kana/ulist/${vnId}`, { headers: { 'Authorization': `Token ${token}` }, timeout: 10000 });
-    return res.status;
+    await axios.delete(`https://api.vndb.org/kana/ulist/${vnId}`, { headers: { 'Authorization': `Token ${token}` }, timeout: 10000 });
+    return true;
   });
   ipcMain.handle('vndb-userlist', async (_, token) => {
     const res = await axios.post('https://api.vndb.org/kana/ulist', { filters: ['uid', '=', 'me'], fields: 'vn.id,vn.title,vn.image.url,vote,notes,status' }, { headers: { 'Authorization': `Token ${token}` }, timeout: 15000 });
     return res.data.results || [];
   });
-  ipcMain.handle('scan-games', async () => {
-    try { const games = await scanCombinedGames(); return { success: true, games }; } catch (err) { return { success: false, error: err.message }; }
-  });
-  
-  // Fixed backup handler using dynamic import for archiver
   ipcMain.handle('backup-library', async () => {
     const { createWriteStream } = require('fs');
     const archiverModule = await import('archiver');
@@ -366,15 +248,12 @@ async function setupIpcHandlers() {
     await archive.finalize();
     return { success: true, path: backupPath };
   });
-  
-  // Fixed restore handler using dynamic import for extract-zip
   ipcMain.handle('restore-backup', async (_, zipPath) => {
     const extractModule = await import('extract-zip');
     const extract = extractModule.default;
     await extract(zipPath, { dir: userDataPath });
     return { success: true };
   });
-  
   ipcMain.handle('window-minimize', () => mainWindow?.minimize());
   ipcMain.handle('window-maximize', () => mainWindow?.isMaximized() ? mainWindow.unmaximize() : mainWindow.maximize());
   ipcMain.handle('window-close', () => mainWindow?.close());
@@ -405,7 +284,6 @@ app.whenReady().then(async () => {
   await setupIpcHandlers();
   createWindow();
   initDiscord();
-  const rawCfg = JSON.parse(await fs.readFile(CONFIG_FILE, 'utf8'));
   nativeTheme.on('updated', async () => {
     const cfg = JSON.parse(await fs.readFile(CONFIG_FILE, 'utf8'));
     if (mainWindow && cfg.theme === 'auto') mainWindow.webContents.send('system-theme-changed', nativeTheme.shouldUseDarkColors ? 'dark' : 'light');
